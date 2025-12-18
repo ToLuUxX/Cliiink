@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <rect width="200" height="200" fill="#00A86B"/>
-  <text x="50%" y="40%" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="bold">Cliiink</text>
-  <text x="50%" y="60%" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24">Réunion</text>
-  <circle cx="100" cy="140" r="30" fill="none" stroke="white" stroke-width="4"/>
-  <path d="M85 130 L100 145 L115 130" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
-</svg>

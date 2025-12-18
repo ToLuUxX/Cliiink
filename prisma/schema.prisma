@@ -1,0 +1,207 @@
+// Schéma Prisma pour Cliiink Réunion
+// Base de données PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// UTILISATEURS ET AUTHENTIFICATION
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String?
+  role          Role      @default(ADMIN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  articles      Article[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+// ============================================
+// BORNES DE TRI
+// ============================================
+
+model Borne {
+  id            String      @id @default(cuid())
+  name          String
+  address       String
+  city          String
+  zipCode       String
+  latitude      Float
+  longitude     Float
+  status        BorneStatus @default(ACTIVE)
+  capacity      Int?        // Capacité en litres
+  fillLevel     Int?        // Niveau de remplissage en %
+  lastCollected DateTime?
+  description   String?
+  imageUrl      String?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("bornes")
+}
+
+enum BorneStatus {
+  ACTIVE        // Fonctionnelle
+  MAINTENANCE   // En maintenance
+  FULL          // Pleine
+  INACTIVE      // Hors service
+}
+
+// ============================================
+// PARTENAIRES COMMERÇANTS
+// ============================================
+
+model Partner {
+  id            String          @id @default(cuid())
+  name          String
+  slug          String          @unique
+  description   String?
+  longDescription String?       @db.Text
+  category      PartnerCategory
+  logoUrl       String?
+  imageUrl      String?
+  address       String
+  city          String
+  zipCode       String
+  latitude      Float?
+  longitude     Float?
+  phone         String?
+  email         String?
+  website       String?
+  advantages    String[]        // Avantages Cliiink (liste)
+  pointsRequired Int?           // Nombre de points requis
+  discount      String?         // Ex: "-10%" ou "1 café offert"
+  isActive      Boolean         @default(true)
+  isFeatured    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("partners")
+}
+
+enum PartnerCategory {
+  RESTAURANT
+  BAR
+  CAFE
+  BOUTIQUE
+  SUPERMARCHE
+  LOISIRS
+  BEAUTE
+  SERVICES
+  AUTRE
+}
+
+// ============================================
+// ARTICLES / ACTUALITÉS
+// ============================================
+
+model Article {
+  id            String          @id @default(cuid())
+  title         String
+  slug          String          @unique
+  excerpt       String?         @db.VarChar(300)
+  content       String          @db.Text
+  imageUrl      String?
+  category      ArticleCategory
+  tags          String[]
+  isPublished   Boolean         @default(false)
+  isFeatured    Boolean         @default(false)
+  publishedAt   DateTime?
+  views         Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  authorId      String
+  author        User            @relation(fields: [authorId], references: [id])
+
+  @@map("articles")
+}
+
+enum ArticleCategory {
+  EVENEMENT
+  TRI
+  PARTENAIRES
+  RESULTATS
+  ACTUALITE
+  CONSEILS
+}
+
+// ============================================
+// MESSAGES DE CONTACT
+// ============================================
+
+model ContactMessage {
+  id            String        @id @default(cuid())
+  type          ContactType
+  // Champs communs
+  name          String
+  email         String
+  message       String        @db.Text
+  // Champs particuliers
+  attachmentUrl String?
+  // Champs commerçants
+  companyName   String?
+  phone         String?
+  position      String?       // Fonction/poste
+  // Statut
+  isRead        Boolean       @default(false)
+  isArchived    Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+
+  @@map("contact_messages")
+}
+
+enum ContactType {
+  PARTICULIER
+  COMMERCANT
+}
+
+// ============================================
+// CONFIGURATION DU SITE
+// ============================================
+
+model SiteConfig {
+  id            String    @id @default(cuid())
+  key           String    @unique
+  value         String    @db.Text
+  description   String?
+  updatedAt     DateTime  @updatedAt
+
+  @@map("site_config")
+}
+
+// ============================================
+// STATISTIQUES
+// ============================================
+
+model Statistics {
+  id                String    @id @default(cuid())
+  year              Int
+  month             Int
+  totalGlassCollected Float   // En tonnes
+  totalPoints       Int
+  totalUsers        Int
+  totalPartners     Int
+  createdAt         DateTime  @default(now())
+
+  @@unique([year, month])
+  @@map("statistics")
+}
