@@ -1,6 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+type PartnerSelect = {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  logoUrl: string | null
+  imageUrl: string | null
+  category: string
+  address: string | null
+  city: string | null
+  zipCode: string | null
+  latitude: number | null
+  longitude: number | null
+  phone: string | null
+  email: string | null
+  website: string | null
+  discount: string | null
+  isActive: boolean
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -28,7 +48,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const partners = await prisma.partner.findMany({
+    const partners: PartnerSelect[] = await prisma.partner.findMany({
       where,
       take: limit,
       orderBy: { name: 'asc' },
